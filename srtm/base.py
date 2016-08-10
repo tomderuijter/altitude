@@ -23,15 +23,12 @@ class ElevationService:
     def get_elevation(self, latitude, longitude):
 
         # Files are indexed by their corner coordinates.
-        file_corner = \
-            self.data_loader.get_corner_coordinates(latitude, longitude)
+        file_corner = int(math.floor(latitude)), int(math.floor(longitude))
 
         if file_corner not in self.file_handles:
             self._open_file_handle(file_corner)
-
-        elevation = \
+        return \
             self._get_elevation_from_file(file_corner, latitude, longitude)
-        return elevation
 
     def get_elevations(self, points):
         # TODO TdR 10/08/16: implement
@@ -111,11 +108,10 @@ class SRTM3DataLoader(object):
     @classmethod
     def get_byte_index(cls, corner_latitude, corner_longitude,
                        request_latitude, request_longitude):
+        max_index = cls.file_side_length - 1.0
         row = math.floor(
-            (corner_latitude + 1 - request_latitude) *
-            float(cls.file_side_length - 1))
+            (corner_latitude + 1 - request_latitude) * max_index)
         col = math.floor(
-            (request_longitude - corner_longitude) *
-            float(cls.file_side_length - 1))
+            (request_longitude - corner_longitude) * max_index)
         byte_index = (row * cls.file_side_length + col) * cls.byte_size
         return byte_index
