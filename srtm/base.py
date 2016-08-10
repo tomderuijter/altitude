@@ -18,8 +18,6 @@ class FileEngine:
         self.cache_dir = self.get_cache_dir()
 
     def get_elevation(self, latitude, longitude):
-        import pdb
-        pdb.set_trace()
         file_name = self.data_loader.get_file_name(latitude, longitude)
         file_corner = self.data_loader.parse_file_name(file_name)
         file_descriptor = FileDescriptor(file_name, *file_corner)
@@ -46,11 +44,8 @@ class FileEngine:
             corner_lat, corner_lon, latitude, longitude)
         byte_size = self.data_loader.byte_size
         file_handle.seek(byte_index)
-        import pdb
-        pdb.set_trace()
-        # TODO TdR 10/08/16: Continue here.
         result = struct.unpack(
-            ">i" + str(byte_size),
+            ">h",
             file_handle.read(byte_size)
         )
         return result[0]
