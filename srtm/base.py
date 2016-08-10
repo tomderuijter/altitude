@@ -15,12 +15,15 @@ class FileEngine:
         self.data_loader = data_loader
         # TODO TdR 10/08/16: use semaphore for managing file handle pool.
         self.file_handles = {}
+
+        self.init_cache_dir()
         self.cache_dir = self.get_cache_dir()
 
     def get_elevation(self, latitude, longitude):
-        file_name = self.data_loader.get_file_name(latitude, longitude)
-        file_corner = self.data_loader.parse_file_name(file_name)
-        file_descriptor = FileDescriptor(file_name, *file_corner)
+        file_corner = \
+            self.data_loader.get_corner_coordinates(latitude, longitude)
+        # TODO TdR 10/08/16: possible optimization to remove FileDescriptor
+        file_descriptor = FileDescriptor(*file_corner)
 
         if file_descriptor not in self.file_handles:
             self.open_file_handle(file_descriptor)
@@ -44,17 +47,17 @@ class FileEngine:
             corner_lat, corner_lon, latitude, longitude)
         byte_size = self.data_loader.byte_size
         file_handle.seek(byte_index)
-        result = struct.unpack(
-            ">h",
-            file_handle.read(byte_size)
-        )
+        result = struct.unpack(">h", file_handle.read(byte_size))
         return result[0]
 
     def open_file_handle(self, file_descriptor):
-        file_name = file_descriptor.name
+        corner_lat = file_descriptor.latitude
+        corner_lon = file_descriptor.longitude
+        file_name = self.data_loader.get_file_name(corner_lat, corner_lon)
         if self.exists(file_name):
             self.file_handles[file_descriptor] = self.open_file(file_name)
-
+        else:
+            raise NotImplementedError("Downloading not implemented yet.")
         # TODO TdR 10/08/16: Continue implementation.
         # Load data from repository and store to cache.
 
@@ -64,20 +67,19 @@ class FileEngine:
     def open_file(self, file_name):
         return open('%s/%s' % (self.cache_dir, file_name), 'rb')
 
-    @classmethod
-    def get_cache_dir(cls):
+    def get_cache_dir(self):
         # TODO TdR 10/08/16: Cache anywhere but in HOME.
+        name = self.data_loader.name
         if 'HOME' in os.environ:
-            cache_dir = os.sep.join([os.environ['HOME'], '.cache', 'srtm'])
+            cache_dir = os.sep.join([os.environ['HOME'], '.cache', name])
         elif 'HOMEPATH' in os.environ:
-            cache_dir = os.sep.join([os.environ['HOMEPATH'], '.cache', 'srtm'])
+            cache_dir = os.sep.join([os.environ['HOMEPATH'], '.cache', name])
         else:
             raise Exception('No cache directory specified.')
         return cache_dir
 
-    @classmethod
-    def init_cache_dir(cls):
-        cache_dir = cls.get_cache_dir()
+    def init_cache_dir(self):
+        cache_dir = self.get_cache_dir()
         if not os.path.exists(cache_dir):
             os.makedirs(cache_dir)
 
@@ -87,8 +89,7 @@ class FileDescriptor(object):
 
     latitude and longitude encode the file's lower left corner.
     """
-    def __init__(self, name, latitude, longitude):
-        self.name = name
+    def __init__(self, latitude, longitude):
         self.latitude = latitude
         self.longitude = longitude
 
@@ -98,9 +99,6 @@ class FileDescriptor(object):
     def __eq__(self, other):
         return self.latitude == other.latitude and \
                self.longitude == other.longitude
-
-    def __str__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.name)
 
 
 class SRTM3DataLoader(object):
@@ -121,10 +119,9 @@ class SRTM3DataLoader(object):
         """Map a point to a repository file name."""
         north_south = 'N' if latitude >= 0 else 'S'
         east_west = 'E' if longitude >= 0 else 'W'
-        file_name = '%s%s%s%s.hgt' % (
-            north_south, str(int(abs(math.floor(latitude)))).zfill(2),
-            east_west, str(int(abs(math.floor(longitude)))).zfill(3)
-        )
+        lat_str = str(int(abs(math.floor(latitude)))).zfill(2)
+        lon_str = str(int(abs(math.floor(longitude)))).zfill(3)
+        file_name = north_south + lat_str + east_west + lon_str + '.hgt'
         return file_name
 
     @classmethod
@@ -145,6 +142,10 @@ class SRTM3DataLoader(object):
         else:
             longitude = -float(file_parts[3])
         return latitude, longitude
+
+    @classmethod
+    def get_corner_coordinates(cls, latitude, longitude):
+        return int(math.floor(latitude)), int(math.floor(longitude))
 
     @classmethod
     def get_byte_index(cls, corner_latitude, corner_longitude,
