@@ -1,6 +1,8 @@
 srtm.py
 =======
-Fast and lightweight querying of SRTM elevation data within Python.
+Fast and lightweight querying of SRTM3 elevation data within Python.
+
+---
 
 ## Getting started
 Working with **srtm.py** is simple.
