@@ -1,6 +1,5 @@
 import math as math
 import os
-import re
 import struct
 
 
@@ -10,7 +9,10 @@ class ElevationService:
     This class is responsible for local storage and interfacing with data
     loaders for downloading from remote repositories.
     """
-    def __init__(self, data_loader):
+    def __init__(self, data_loader=None):
+        if data_loader is None:
+            data_loader = SRTM3DataLoader()
+
         # TODO TdR 10/08/16: Check whether data_loader implements DataLoader.
         self.data_loader = data_loader
         # TODO TdR 10/08/16: use semaphore for managing file handle pool.
