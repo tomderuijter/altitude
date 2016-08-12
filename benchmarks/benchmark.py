@@ -1,4 +1,5 @@
 """Script for testing various random access methods."""
+import logging
 import math
 import struct
 import timeit
@@ -6,7 +7,7 @@ from random import random
 
 import numpy as np
 
-from srtm.base import FileEngine, SRTM3DataLoader
+from srtm import ElevationService, SRTM3DataLoader
 
 TEST_FILE = 'N50E007.hgt'
 FILE_SIDE_LENGTH = 1201  # Length of byte matrix
@@ -77,7 +78,8 @@ def test_numpy_fromfile_persisted():
     ].astype(int)
 
 
-file_engine = FileEngine(SRTM3DataLoader())
+cache_dir = '.cache'
+file_engine = ElevationService(cache_dir, SRTM3DataLoader(cache_dir))
 
 
 def test_file_engine_random():
@@ -96,8 +98,12 @@ def run_test(fun, test_descr, test_nr, nr_runs):
 
 
 if __name__ == '__main__':
-    nr_runs = 1000000
-    print("Running each test %d times." % nr_runs)
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        level='DEBUG'
+    )
+    nr_runs = 250000
+    # print("Running each test %d times." % nr_runs)
     tests = [
         (
             test_struct_with_seek,
@@ -105,15 +111,11 @@ if __name__ == '__main__':
         ),
         (
             test_struct_with_seek_persisted,
-            "STRUCT - Randomly seek on persisted file handle."
-        ),
-        (
-            test_struct_with_seek_persisted_random,
             "STRUCT - Seek on persisted file handle."
         ),
         (
-            test_numpy_fromfile_persisted,
-            "NUMPY - Memory stored matrix lookup."
+            test_struct_with_seek_persisted_random,
+            "STRUCT - Randomly seek on persisted file handle."
         ),
         (
             test_file_engine_random,
@@ -122,8 +124,4 @@ if __name__ == '__main__':
     ]
     for count, test in enumerate(tests):
         run_test(test[0], test[1], count + 1, nr_runs)
-    """
-    Methods to try:
-    mmap
-    requests
-    """
+
