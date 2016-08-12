@@ -7,7 +7,7 @@ import zipfile
 
 import joblib
 
-from crawler import LinkCrawler
+from .crawler import LinkCrawler
 
 # TODO TdR 12/08/16: properly configure caching.
 # TODO TdR 12/08/16: cache validation not configurable.
@@ -49,7 +49,12 @@ class SRTM3DataLoader(object):
             logging.debug("No file listing loaded.")
             self._download_file_listing()
             logging.debug("Loaded file listing.")
-        file_url = self.file_listing[file_corner]
+
+        try:
+            file_url = self.file_listing[file_corner]
+        except KeyError:
+            raise FileNotFoundError(
+                "Tile (%d, %d) does not exist" % file_corner)
 
         logging.debug("Downloading file: %s" % file_url)
         with urllib.request.urlopen(file_url) as response:
@@ -67,6 +72,10 @@ class SRTM3DataLoader(object):
             if file_corner:
                 file_listing[file_corner] = url
         self.file_listing = file_listing
+
+    @classmethod
+    def invalid_value(cls):
+        return -(2 ** (cls.byte_size * 8 - 1))
 
     @classmethod
     def _parse_file_name_corner(cls, file_name):
