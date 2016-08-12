@@ -14,7 +14,7 @@ def setup_config():
             "Programming Language :: Python",
             "Programming Language :: Python :: 3",
         ],
-        'requires': ['joblib'],
+        'install_requires': ['joblib'],
     }
     return config
 
