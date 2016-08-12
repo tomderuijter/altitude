@@ -9,11 +9,6 @@ import joblib
 
 from .crawler import LinkCrawler
 
-# TODO TdR 12/08/16: properly configure caching.
-# TODO TdR 12/08/16: cache validation not configurable.
-cache_dir = '.cache/'
-memory = joblib.Memory(cachedir=cache_dir, verbose=0)
-
 
 class SRTM3DataLoader(object):
     """Class for downloading SRTM3 .hgt files.
@@ -26,10 +21,13 @@ class SRTM3DataLoader(object):
     file_side_length = 1201
     byte_size = 2
 
-    def __init__(self):
+    def __init__(self, cache_dir):
         # TODO TdR 10/08/16: change url to post-processed data source.
         self.url = 'http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/'
         self.file_listing = None
+
+        cache_engine = joblib.Memory(cachedir=cache_dir, verbose=0)
+        self.crawl_page = cache_engine.cache(self.crawl_page)
 
     @classmethod
     def get_byte_index(cls, corner_latitude, corner_longitude,
@@ -65,7 +63,7 @@ class SRTM3DataLoader(object):
         return response_data
 
     def _download_file_listing(self):
-        file_urls = _crawl_page_cached(self.url)
+        file_urls = self.crawl_page(self.url)
         file_listing = {}
         for url in file_urls:
             file_corner = self._parse_file_name_corner(url)
@@ -94,12 +92,11 @@ class SRTM3DataLoader(object):
             longitude = -int(groups[3])
         return latitude, longitude
 
-
-@memory.cache
-def _crawl_page_cached(url):
-    crawler = LinkCrawler()
-    file_urls = crawler.crawl(url)
-    return file_urls
+    @classmethod
+    def crawl_page(cls, url):
+        crawler = LinkCrawler()
+        file_urls = crawler.crawl(url)
+        return file_urls
 
 
 def _unzip(byte_data):

@@ -13,17 +13,18 @@ class ElevationService:
     with data loaders for downloading from remote repositories.
     """
     # TODO TdR 11/08/16: extract non-public methods to cache subclass
-    def __init__(self, data_loader=None):
+    def __init__(self, cache_dir, data_loader=None):
         if data_loader is None:
-            data_loader = SRTM3DataLoader()
+            data_loader = SRTM3DataLoader(cache_dir)
 
         # TODO TdR 10/08/16: Check whether data_loader implements DataLoader.
         self.data_loader = data_loader
         # TODO TdR 10/08/16: use semaphore for managing file handle pool.
         # TODO TdR 10/08/16: parallel reading could lead to further speeds.
         self.file_handles = {}
+
+        self._cache_dir = os.path.join(cache_dir, data_loader.name)
         self._init_cache_dir()
-        self.cache_dir = self._get_cache_dir()
 
         self.invalid_value = self.data_loader.invalid_value()
 
@@ -79,18 +80,17 @@ class ElevationService:
         return cache_dir
 
     def _init_cache_dir(self):
-        cache_dir = self._get_cache_dir()
-        if not os.path.exists(cache_dir):
-            os.makedirs(cache_dir)
+        if not os.path.exists(self._cache_dir):
+            os.makedirs(self._cache_dir)
 
     def _exists(self, file_name):
-        return os.path.exists('%s/%s' % (self.cache_dir, file_name))
+        return os.path.exists('%s/%s' % (self._cache_dir, file_name))
 
     def _open(self, file_name):
-        return open('%s/%s' % (self.cache_dir, file_name), 'rb')
+        return open('%s/%s' % (self._cache_dir, file_name), 'rb')
 
     def _write(self, file_name, data):
-        with open('%s/%s' % (self.cache_dir, file_name), 'wb') as f:
+        with open('%s/%s' % (self._cache_dir, file_name), 'wb') as f:
             f.write(data)
 
 
