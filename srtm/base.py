@@ -1,9 +1,9 @@
+import logging
 import math as math
 import os
 import struct
 
-
-from srtm3_loader import SRTM3DataLoader
+from .srtm3_loader import SRTM3DataLoader
 
 
 class ElevationService:
@@ -25,14 +25,18 @@ class ElevationService:
         self._init_cache_dir()
         self.cache_dir = self._get_cache_dir()
 
+        self.invalid_value = self.data_loader.invalid_value()
+
     def get_elevation(self, latitude, longitude):
         # Files are indexed by their corner coordinates.
         file_id = int(math.floor(latitude)), int(math.floor(longitude))
-
         if file_id not in self.file_handles:
-            self._open_file_handle(file_id)
-        return \
-            self._get_elevation_from_file(file_id, latitude, longitude)
+            try:
+                self._open_file_handle(file_id)
+            except FileNotFoundError as e:
+                logging.error(e)
+                return None
+        return self._get_elevation_from_file(file_id, latitude, longitude)
 
     def get_elevations(self, points):
         # TODO TdR 10/08/16: implement
@@ -49,27 +53,21 @@ class ElevationService:
         byte_size = self.data_loader.byte_size
         file_handle.seek(byte_index)
         result = struct.unpack(">h", file_handle.read(byte_size))
-        return result[0]
+        if result[0] != self.invalid_value:
+            return result[0]
+        else:
+            return None
 
     def _open_file_handle(self, file_corner):
-        file_name = self._construct_tmp_name(file_corner)
+        file_name = _construct_tmp_name(file_corner)
 
         if not self._exists(file_name):
+            byte_data = self.data_loader.download(file_corner)
             self._write(
                 file_name,
-                self.data_loader.download(file_corner)
+                byte_data
             )
         self.file_handles[file_corner] = self._open(file_name)
-
-    def _construct_tmp_name(self, file_corner):
-        corner_lat, corner_lon = file_corner
-        north_south = 'N' if corner_lat >= 0 else 'S'
-        east_west = 'E' if corner_lon >= 0 else 'W'
-        lat_str = str(int(abs(math.floor(corner_lat)))).zfill(2)
-        lon_str = str(int(abs(math.floor(corner_lon)))).zfill(3)
-        file_name = \
-            north_south + lat_str + east_west + lon_str + '.hgt'
-        return file_name
 
     def _get_cache_dir(self):
         # TODO TdR 10/08/16: Cache anywhere but in HOME.
@@ -94,3 +92,14 @@ class ElevationService:
     def _write(self, file_name, data):
         with open('%s/%s' % (self.cache_dir, file_name), 'wb') as f:
             f.write(data)
+
+
+def _construct_tmp_name(file_corner):
+    corner_lat, corner_lon = file_corner
+    north_south = 'N' if corner_lat >= 0 else 'S'
+    east_west = 'E' if corner_lon >= 0 else 'W'
+    lat_str = str(int(abs(math.floor(corner_lat)))).zfill(2)
+    lon_str = str(int(abs(math.floor(corner_lon)))).zfill(3)
+    file_name = \
+        north_south + lat_str + east_west + lon_str + '.hgt'
+    return file_name
