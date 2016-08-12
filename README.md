@@ -8,7 +8,7 @@ Fast and lightweight querying of SRTM3 elevation data within Python.
 Working with **srtm.py** is simple.
 ```python
 from srtm import ElevationService
-e = ElevationService()
+e = ElevationService('.cache/')
 elevation = e.get_elevation(50.8, 7.5)
 ```
 
