@@ -101,21 +101,3 @@ def guess_type(url):
             if response.getcode() < 400:
                 url_type = response.headers.get_content_type()
     return url_type
-
-
-if __name__ == "__main__":
-    logging.basicConfig(
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        level='DEBUG'
-    )
-    test_url = 'http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/'
-    crawler = LinkCrawler()
-    items = crawler.crawl(test_url)
-    item_names = []
-    for item in items:
-        item_names.append(item.split('/')[-1])
-    item_names.sort()
-    print("Found %d items.." % len(items))
-    with open('files.txt', 'w') as f:
-        for item in item_names:
-            f.write(str(item) + '\n')

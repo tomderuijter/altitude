@@ -7,7 +7,7 @@ from random import random
 
 import numpy as np
 
-from srtm import ElevationService, SRTM3DataLoader
+from altitude import ElevationService, SRTM3DataLoader
 
 TEST_FILE = 'N50E007.hgt'
 FILE_SIDE_LENGTH = 1201  # Length of byte matrix

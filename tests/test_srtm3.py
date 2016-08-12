@@ -1,6 +1,6 @@
 import logging
-import srtm
-from srtm.base import SRTM3DataLoader
+import altitude
+from altitude.base import SRTM3DataLoader
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -13,7 +13,7 @@ class TestSRTM3Results:
     @classmethod
     def setup_class(cls):
         data_loader = SRTM3DataLoader()
-        cls.file_engine = srtm.ElevationService(data_loader)
+        cls.file_engine = altitude.ElevationService(data_loader)
         cls.get_elevation = cls.file_engine.get_elevation
 
     def test_dead_sea(self):

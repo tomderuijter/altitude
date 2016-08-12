@@ -1,13 +1,13 @@
-srtm.py
-=======
+altitude
+========
 Fast and lightweight querying of SRTM3 elevation data within Python.
 
 ---
 
 ## Getting started
-Working with **srtm.py** is simple.
+Working with **altitude** is simple.
 ```python
-from srtm import ElevationService
+from altitude import ElevationService
 e = ElevationService('.cache/')
 elevation = e.get_elevation(50.8, 7.5)
 ```
@@ -15,11 +15,8 @@ elevation = e.get_elevation(50.8, 7.5)
 ---
 
 ## Install
-The package will soon be available on PyPI. Until then a local copy of the source code is necessary.
-Run:
 ```
-git clone https://github.com/tomderuijter/srtm.py.git
-pip install -e srtm.py
+pip install altitude
 ```
 
 ---
