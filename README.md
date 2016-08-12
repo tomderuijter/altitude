@@ -15,6 +15,12 @@ elevation = e.get_elevation(50.8, 7.5)
 ---
 
 ## Install
+The package will soon be available on PyPI. Until then a local copy of the source code is necessary.
+Run:
+```
+git clone https://github.com/tomderuijter/srtm.py.git
+pip install -e srtm.py
+```
 
 ---
 
