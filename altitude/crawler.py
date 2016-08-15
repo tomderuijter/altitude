@@ -22,15 +22,15 @@ class LinkCrawler(HTMLParser):
     def crawl(self, root_url):
         self.__init__()
         self.root = root_url
-        logging.debug("Start crawl from page: %s" % root_url)
+        logging.debug("Start crawl from page: %s", root_url)
         self.open_links.append(root_url)
         while self.open_links:
-            logging.debug("%d pages on stack." % len(self.open_links))
-            logging.debug("%d items found." % len(self.found_items))
+            logging.debug("%d pages on stack.", len(self.open_links))
+            logging.debug("%d items found.", len(self.found_items))
             url = self.open_links.pop(0)
             self.load_and_parse_page(url)
 
-        logging.debug("Finished crawl. Found %d items." % len(self.found_items))
+        logging.debug("Finished crawl. Found %d items.", len(self.found_items))
         return self.found_items
 
     def load_and_parse_page(self, url):
@@ -73,7 +73,7 @@ class LinkCrawler(HTMLParser):
         )
 
         if should_visit:
-            logging.debug("Adding page to stack: %s" % url)
+            logging.debug("Adding page to stack: %s", url)
             self.open_links.append(url)
         elif url_type and url_type != 'text/html' and \
                 url not in self.found_items:

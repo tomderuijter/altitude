@@ -27,7 +27,7 @@ class SRTM3DataLoader(object):
         self.file_listing = None
 
         cache_engine = joblib.Memory(cachedir=cache_dir, verbose=0)
-        self.crawl_page = cache_engine.cache(self.crawl_page)
+        self.cached_crawl_page = cache_engine.cache(self.crawl_page)
 
     @classmethod
     def get_byte_index(cls, corner_latitude, corner_longitude,
@@ -54,7 +54,7 @@ class SRTM3DataLoader(object):
             raise FileNotFoundError(
                 "Tile (%d, %d) does not exist" % file_corner)
 
-        logging.debug("Downloading file: %s" % file_url)
+        logging.debug("Downloading file: %s", file_url)
         with urllib.request.urlopen(file_url) as response:
             response_data = response.read()
         if file_url.endswith('.zip'):
@@ -63,7 +63,7 @@ class SRTM3DataLoader(object):
         return response_data
 
     def _download_file_listing(self):
-        file_urls = self.crawl_page(self.url)
+        file_urls = self.cached_crawl_page(self.url)
         file_listing = {}
         for url in file_urls:
             file_corner = self._parse_file_name_corner(url)
