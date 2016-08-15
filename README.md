@@ -26,4 +26,12 @@ This package is developed to be fast and lightweight. Contributions through pull
 
 ---
 
+## Contributors
+- [Tom de Ruijter](https://github.com/tomderuijter/)
+
+The library is inspired by [srtm.py](https://github.com/tkrajina/srtm.py/).
+
+---
+
 ## License
+This code is licensed under the Apache 2.0 license.
