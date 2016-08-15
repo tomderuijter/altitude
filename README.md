@@ -22,14 +22,14 @@ pip install altitude
 ---
 
 ## Referencing
-
+```latex
 @misc{altitude,
   author = {{Tom de Ruijter}},
   title = {{altitude}: Querying SRTM data on the fly.},
   howpublished = {\url{http://github.com/tomderuijter/altitude}},
   year = {since 2016}
 }
-
+```
 ---
 
 ## Contributing
