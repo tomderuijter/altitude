@@ -5,6 +5,9 @@ import urllib.request
 from html.parser import HTMLParser
 
 
+# TODO TdR 13/08/16: subdomain 'www' should be ignored.
+# TODO TdR 13/08/16: check if page is already put on stack (same link 2x)
+# TODO TdR 13/08/16: ignore links including a local anchor ('#')
 class LinkCrawler(HTMLParser):
     """Simple descending link crawler for finding files on domain."""
 
