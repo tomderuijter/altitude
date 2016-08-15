@@ -1,4 +1,4 @@
-altitude
+altitude [![Code Health](https://landscape.io/github/tomderuijter/altitude/master/landscape.svg?style=flat)](https://landscape.io/github/tomderuijter/altitude/master)
 ========
 Fast and lightweight querying of SRTM3 elevation data within Python.
 
