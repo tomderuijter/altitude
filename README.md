@@ -21,6 +21,17 @@ pip install altitude
 
 ---
 
+## Referencing
+
+@misc{altitude,
+  author = {{Tom de Ruijter}},
+  title = {{altitude}: Querying SRTM data on the fly.},
+  howpublished = {\url{http://github.com/tomderuijter/altitude}},
+  year = {since 2016}
+}
+
+---
+
 ## Contributing
 This package is developed to be fast and lightweight. Contributions through pull-requests are very welcome, but should honour those two core principles.
 
